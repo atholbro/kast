@@ -1,0 +1,28 @@
+build:
+  # total issues are (number of issues * weight of issue)
+  #maxIssues: 30
+  weights:
+    LongParameterList: 0
+    comments: 0
+complexity:
+  TooManyFunctions:
+    ignorePrivate: true
+    thresholdInFiles: 20
+  LongParameterList:
+    active: false
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+style:
+  ReturnCount:
+    excludeGuardClauses: true
+  ForbiddenComment:
+    active: false # allow usage of "TODO" comments
+  MaxLineLength:
+    excludes: ['**/test/**', '**/*.Test.kt']
+    active: true
+    maxLineLength: 120
+    excludePackageStatements: true
+    excludeImportStatements: true
+    excludeCommentStatements: false
+    excludeRawStrings: true
