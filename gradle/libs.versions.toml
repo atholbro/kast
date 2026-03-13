@@ -2,17 +2,30 @@
 coroutines = "1.10.2"
 detekt = "1.23.8"
 dnsJava = "3.6.3"
+# @keep used manually in jib configs, see app/build.gradle.kts
+eclipseTemurin = "25_36-jre-alpine-3.22@sha256:bf9c91071c4f90afebb31d735f111735975d6fe2b668a82339f8204202203621"
 gradleFilterVersions = "0.1.16"
 gradleUpdateVersions = "1.0.1"
 gradleVersions = "0.53.0"
+# @keep used manually for jacoco config, see build.gradle.kts
+jacoco = "0.8.13"
 # @keep jdk target
 jdk = "21"
+jib = "3.4.5"
+jib-javaagent = "0.10.0"
 junit = "6.0.1"
 kotest = "6.0.5"
 kotlin = "2.2.21"
 kotlinLogging = "3.0.5"
 kotlinter = "5.2.0"
+ktor = "3.3.2"
+logbackClassic = "1.5.20"
+micrometer = "1.16.0"
 mockk = "1.14.6"
+opentelemetry = "1.56.0"
+opentelemetryAgent = "2.21.0"
+prometheus = "1.4.3"
+slf4j = "2.0.17"
 
 [libraries]
 dnsjava = { module = "dnsjava:dnsjava", version.ref = "dnsJava" }
@@ -21,12 +34,38 @@ junit-launcher = { module = "org.junit.platform:junit-platform-launcher", versio
 kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinLogging = { module = "io.github.microutils:kotlin-logging", version.ref = "kotlinLogging" }
+ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
+ktor-server-micrometer = { module = "io.ktor:ktor-server-metrics-micrometer", version.ref = "ktor" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
+logbackClassic = { module = "ch.qos.logback:logback-classic", version.ref = "logbackClassic" }
+micrometer-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+opentelemetry-extensionKotlin = { module = "io.opentelemetry:opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
+opentelemetry-javaagent = { module = "io.opentelemetry.javaagent:opentelemetry-javaagent", version.ref = "opentelemetryAgent" }
+prometheus-jvmMetrics = { module = "io.prometheus:prometheus-metrics-instrumentation-jvm", version.ref = "prometheus" }
+slf4j-julBridge = { module = "org.slf4j:jul-to-slf4j", version.ref = "slf4j" }
+
+[bundles]
+ktor-micrometer = [
+    "ktor-server-micrometer",
+    "micrometer-prometheus",
+    "prometheus-jvmMetrics",
+]
+ktor-server = [
+    "ktor-server-core",
+    "ktor-server-netty",
+]
+opentelemetry = [
+    "opentelemetry-extensionKotlin",
+    "slf4j-julBridge",
+]
 
 [plugins]
 detektPlugin = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 gradleUpdateVersionsPlugin = { id = "nl.littlerobots.version-catalog-update", version.ref = "gradleUpdateVersions" }
 gradleVersionsFilterPlugin = { id = "se.ascp.gradle.gradle-versions-filter", version.ref = "gradleFilterVersions" }
 gradleVersionsPluign = { id = "com.github.ben-manes.versions", version.ref = "gradleVersions" }
+jib-javaagentPlugin = { id = "com.ryandens.javaagent-jib", version.ref = "jib-javaagent" }
+jib-jibPlugin = { id = "com.google.cloud.tools.jib", version.ref = "jib" }
 kotlinPlugin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinterPlugin = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }

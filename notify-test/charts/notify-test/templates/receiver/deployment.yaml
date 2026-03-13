@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "notifyTest.receiver.fullname" . }}
+  labels:
+    {{- include "notifyTest.receiver.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.receiver.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "notifyTest.receiver.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.receiver.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "notifyTest.receiver.labels" . | nindent 8 }}
+        {{- with .Values.receiver.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.receiver.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.receiver.securityContext | nindent 12 }}
+          image: "{{ .Values.receiver.image.repository }}:{{ .Values.receiver.image.tag | default .Chart.Version }}"
+          imagePullPolicy: {{ .Values.receiver.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "notifyTest.receiver.fullname" . }}
+          ports:
+            - name: http
+              containerPort: 8081
+              protocol: TCP
+            - name: notify
+              containerPort: 9000
+              protocol: UDP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+              initialDelaySeconds: 60
+          resources:
+            {{- toYaml .Values.receiver.resources | nindent 12 }}
+          {{- with .Values.receiver.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.receiver.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.receiver.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.receiver.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.receiver.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

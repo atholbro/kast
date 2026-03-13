@@ -1,0 +1,5 @@
+imagePullSecrets:
+  - name: docker-credentials
+
+sender:
+  targets: "notify-test-receiver-notify.default.svc.cluster.local."

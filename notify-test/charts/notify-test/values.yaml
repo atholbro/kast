@@ -1,0 +1,54 @@
+timePort: 9000
+
+nameOverride: ""
+fullnameOverride: ""
+
+imagePullSecrets: []
+
+sender:
+  targets: ""
+
+  replicaCount: 1
+
+  image:
+    repository: harbor.holbrook.casa/library/notify-test-sender
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  podAnnotations: { }
+  podLabels: { }
+  podSecurityContext: { }
+  securityContext: { }
+  resources: { }
+  volumes: [ ]
+  volumeMounts: [ ]
+  nodeSelector: { }
+  tolerations: [ ]
+  affinity: { }
+
+receiver:
+  replicaCount: 2
+
+  image:
+    repository: harbor.holbrook.casa/library/notify-test-receiver
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext: {}
+  securityContext: {}
+  resources: {}
+  volumes: []
+  volumeMounts: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

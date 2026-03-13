@@ -1,0 +1,6 @@
+apiVersion: v2
+name: notify-test
+description: Testing for UDPKT
+type: application
+version: 0.0.14
+

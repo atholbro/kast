@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "notifyTest.receiver.fullname" . }}
+data:
+  TIME_PORT: {{ .Values.timePort | quote }}
+
+  OTEL_ENABLED: "false"
+  OTEL_JAVAAGENT_LOGGING: "none"
