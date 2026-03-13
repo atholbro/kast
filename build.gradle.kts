@@ -70,7 +70,7 @@ allprojects {
     }
 
     publishing {
-        group = "com.github.atholbro"
+        group = "net.aholbrook.kast"
         version = System.getenv("VERSION") ?: "0.0.1-SNAPSHOT"
 
         repositories {

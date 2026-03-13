@@ -1,5 +1,5 @@
-rootProject.name = "udpkt"
+rootProject.name = "kast"
 
-include(":udpkt")
+include(":kast")
 include(":notify-test:receiver")
 include(":notify-test:sender")

@@ -10,12 +10,12 @@ plugins {
 val version = (System.getenv("VERSION") ?: "").ifEmpty { "latest" }
 
 application {
-    mainClass.set("com.github.atholbrook.notifytest.MainKt")
+    mainClass.set("net.aholbrook.kast.notifytest.MainKt")
 }
 
 dependencies {
     with (rootProject) {
-        implementation(project(":udpkt"))
+        implementation(project(":kast"))
         implementation(libs.bundles.opentelemetry)
         implementation(libs.bundles.ktor.server)
         implementation(libs.bundles.ktor.micrometer)
