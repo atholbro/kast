@@ -106,6 +106,8 @@ internal class DnsCache(private val refreshInterval: Duration = Duration.ofSecon
         cache.updateAndGet { current ->
             updated += current.filterNot { updated.containsKey(it.key) }
                 .mapValues { (k, _) -> resolve(k) }
+
+            // avoid unnecessary set if nothing changed
             if (updated != current) {
                 updated
             } else {

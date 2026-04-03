@@ -7,6 +7,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
+import java.net.DatagramSocket
 import java.time.Duration
 
 class ApiTest {
@@ -82,5 +83,20 @@ class ApiTest {
         }
 
         receiver.stop()
+    }
+
+    @Test
+    fun `sender stop closes socket`(): Unit = runBlocking {
+        val socket = DatagramSocket()
+        val sender = Sender(
+            hosts = arrayOf("127.0.0.1"),
+            port = 9997,
+            encoder = NotificationEncoder(StringEncoding),
+            socketFactory = { socket },
+        )
+
+        sender.stop()
+
+        socket.isClosed shouldBe true
     }
 }

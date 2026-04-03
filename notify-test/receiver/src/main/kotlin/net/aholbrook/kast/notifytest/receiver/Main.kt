@@ -1,10 +1,5 @@
 package net.aholbrook.kast.notifytest.receiver
 
-import net.aholbrook.kast.notifytest.receiver.http.installHealthChecks
-import net.aholbrook.kast.notifytest.receiver.http.installMicrometerMetrics
-import net.aholbrook.kast.NotificationDecoder
-import net.aholbrook.kast.Receiver
-import net.aholbrook.kast.StringEncoding
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.micrometer.prometheusmetrics.PrometheusConfig
@@ -14,6 +9,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
+import net.aholbrook.kast.NotificationDecoder
+import net.aholbrook.kast.Receiver
+import net.aholbrook.kast.StringEncoding
+import net.aholbrook.kast.notifytest.receiver.http.installHealthChecks
+import net.aholbrook.kast.notifytest.receiver.http.installMicrometerMetrics
 import java.time.Duration
 import java.time.OffsetDateTime
 

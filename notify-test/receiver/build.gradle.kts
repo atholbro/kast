@@ -3,8 +3,8 @@ plugins {
     application
 
     // jib + javaagent for otel
-    alias(libs.plugins.jib.jibPlugin)
-    alias(libs.plugins.jib.javaagentPlugin)
+    alias(libs.plugins.jib)
+    alias(libs.plugins.jib.javaagent)
 }
 
 val version = (System.getenv("VERSION") ?: "").ifEmpty { "latest" }
@@ -29,7 +29,7 @@ dependencies {
 tasks {
     jib {
         from { image = "library/eclipse-temurin:${rootProject.libs.versions.eclipseTemurin.get()}" }
-        to { image = "harbor.holbrook.casa/library/notify-test-receiver:$version" }
+        to { image = "${System.getenv("REGISTRY")}/notify-test-receiver:$version" }
         container {
             ports = listOf("8080")
         }

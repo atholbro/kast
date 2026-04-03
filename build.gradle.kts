@@ -3,22 +3,31 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     base
-    `maven-publish`
     `version-catalog`
 
-    alias(libs.plugins.kotlinPlugin)
-    alias(libs.plugins.kotlinterPlugin)
-    alias(libs.plugins.detektPlugin)
-    alias(libs.plugins.gradleVersionsPluign)
-    alias(libs.plugins.gradleVersionsFilterPlugin)
-    alias(libs.plugins.gradleUpdateVersionsPlugin)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlinter)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.gradleVersions)
+    alias(libs.plugins.gradleVersions.filter)
+    alias(libs.plugins.gradleVersions.update)
+    alias(libs.plugins.binaryCompatibilityValidator)
+}
+
+apiValidation {
+    apiDumpDirectory = ".api-validation"
+    nonPublicMarkers += "net.aholbrook.kast.InternalApi"
+    ignoredProjects.addAll(listOf("notify-test", "receiver", "sender"))
 }
 
 allprojects {
+    val isNotifyTestProject = path == ":notify-test" || path.startsWith(":notify-test:")
+
     apply(plugin = "kotlin")
     apply(plugin = "org.jmailen.kotlinter")
-    apply(plugin = "io.gitlab.arturbosch.detekt")
-    apply(plugin = "maven-publish")
+    if (!isNotifyTestProject) {
+        apply(plugin = "io.gitlab.arturbosch.detekt")
+    }
 
     repositories {
         mavenLocal()
@@ -26,82 +35,60 @@ allprojects {
     }
 
     dependencies {
-        implementation(rootProject.libs.kotlinLogging)
+        with (rootProject) {
+            implementation(libs.kotlinLogging)
 
-        testImplementation(rootProject.libs.junit.jupiter)
-        testRuntimeOnly(rootProject.libs.junit.launcher)
+            testImplementation(libs.kotest.assertions.core)
+            testImplementation(libs.junit.jupiter.api)
+            testImplementation(libs.junit.jupiter.params)
+
+            testRuntimeOnly(libs.junit.jupiter.engine)
+            testRuntimeOnly(libs.junit.platform.launcher)
+        }
+    }
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(rootProject.libs.versions.jvm.get()))
+        }
     }
 
     tasks {
         withType<KotlinCompile>().configureEach {
             compilerOptions {
                 jvmTarget.set(
-                    JvmTarget.valueOf("JVM_" + rootProject.libs.versions.jdk.get().replace('.', '_'))
+                    JvmTarget.valueOf(
+                        "JVM_" + rootProject.libs.versions.jvm.get().replace('.', '_')
+                    )
                 )
-                freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
             }
         }
 
-        withType<JavaCompile> {
-            options.encoding = "UTF-8"
-        }
+        withType<JavaCompile> { options.encoding = "UTF-8" }
 
-        withType<Test> {
+        withType<Test>().configureEach {
             useJUnitPlatform()
-
             jvmArgs = listOf("-Xshare:off")
-        }
 
-
-    }
-
-    java {
-        withJavadocJar()
-        withSourcesJar()
-
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(rootProject.libs.versions.jdk.get()))
-        }
-    }
-
-    detekt {
-        buildUponDefaultConfig = true
-        config.setFrom(files("${project.rootDir}/detekt-config.yml"))
-    }
-
-    publishing {
-        group = "net.aholbrook.kast"
-        version = System.getenv("VERSION") ?: "0.0.1-SNAPSHOT"
-
-        repositories {
-            maven {
-                val publishName: String by project
-                val publishUrl: String by project
-                val publishUsername: String by project
-                val publishPassword: String by project
-
-                name = publishName
-                url = uri(publishUrl)
-
-                credentials {
-                    username = publishUsername
-                    password = publishPassword
-                }
+            testLogging {
+                events("failed", "skipped")
+                showExceptions = true
+                exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+                showCauses = true
+                showStackTraces = true
+                showStandardStreams = true
             }
         }
+    }
 
-        publications {
-            create<MavenPublication>("maven") {
-                from(components["java"])
-            }
+    if (!isNotifyTestProject) {
+        detekt {
+            buildUponDefaultConfig = true
+            config.setFrom(files("${project.rootDir}/detekt-config.yml"))
         }
     }
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
-
-versionsFilter {
-    gradleReleaseChannel.set("release")
+tasks.check {
+    dependsOn(tasks.apiCheck)
 }

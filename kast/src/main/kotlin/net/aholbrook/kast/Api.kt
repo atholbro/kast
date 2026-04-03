@@ -17,6 +17,7 @@ import java.net.DatagramSocket
 import java.net.InetAddress
 import java.net.SocketException
 import java.time.Duration
+import kotlin.time.toKotlinDuration
 
 private val logger = KotlinLogging.logger {}
 
@@ -25,6 +26,7 @@ class Sender<T> internal constructor(
     val port: Int,
     val encoder: NotificationEncoder<T>,
     refreshInterval: Duration = Duration.ofMinutes(1),
+    val shutdownTimeout: Duration = Duration.ofMinutes(1),
     socketFactory: () -> DatagramSocket,
 ) {
     private val dnsCache = DnsCache(refreshInterval)
@@ -35,7 +37,7 @@ class Sender<T> internal constructor(
             Thread {
                 runBlocking {
                     logger.debug { "Shutting down socket for port $port..." }
-                    withTimeout(60_000L) {
+                    withTimeout(shutdownTimeout.toKotlinDuration()) {
                         mutex.withLock { socket.close() }
                     }
                 }
@@ -48,7 +50,15 @@ class Sender<T> internal constructor(
         port: Int,
         encoder: NotificationEncoder<T>,
         refreshInterval: Duration = Duration.ofMinutes(1),
-    ) : this(hosts, port, encoder, refreshInterval, { DatagramSocket() })
+        shutdownTimeout: Duration = Duration.ofMinutes(1),
+    ) : this(
+        hosts = hosts,
+        port = port,
+        encoder = encoder,
+        shutdownTimeout = refreshInterval,
+        refreshInterval = shutdownTimeout,
+        socketFactory = { DatagramSocket() },
+    )
 
     fun start() {
         dnsCache.start()
@@ -57,6 +67,13 @@ class Sender<T> internal constructor(
 
     fun stop() {
         dnsCache.stop()
+        runBlocking {
+            mutex.withLock {
+                if (!socket.isClosed) {
+                    socket.close()
+                }
+            }
+        }
     }
 
     suspend fun notifyAll(notification: Notification<T>) {
@@ -118,10 +135,14 @@ class Receiver<_Data>(val port: Int, val decoder: NotificationDecoder<_Data>) {
 
                 while (isActive && !socket.isClosed) {
                     try {
+                        packet.length = FRAME_MAX_BYTES
                         socket.receive(packet)
                         logger.debug { "Received packet $packet" }
 
-                        val decoded = decode(packet.data.copyOf(), decoder)
+                        val decoded = decode(
+                            packet.data.copyOfRange(packet.offset, packet.offset + packet.length),
+                            decoder,
+                        )
                         scope.launch {
                             runCatching {
                                 logger.debug { "Received notification ${decoded.id}: ${decoded.payload}" }
@@ -154,7 +175,7 @@ class Receiver<_Data>(val port: Int, val decoder: NotificationDecoder<_Data>) {
         block: suspend (payload: _Data) -> Unit,
     ) {
         broadcastManager.register(id, duration.toMillis())?.let {
-            val payload = withTimeout(duration.toMillis()) { it.await() }
+            val payload = withTimeout(duration.toKotlinDuration()) { it.await() }
             block(payload)
         }
     }
