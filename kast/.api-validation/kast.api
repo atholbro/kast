@@ -1,0 +1,106 @@
+public final class net/aholbrook/kast/ByteArrayEncoding : net/aholbrook/kast/PayloadDecoder, net/aholbrook/kast/PayloadEncoder {
+	public static final field INSTANCE Lnet/aholbrook/kast/ByteArrayEncoding;
+	public synthetic fun decode ([BII)Ljava/lang/Object;
+	public fun decode ([BII)[B
+	public synthetic fun encode (Ljava/lang/Object;)[B
+	public fun encode ([B)[B
+	public fun getType ()Lnet/aholbrook/kast/MessageType;
+}
+
+public abstract interface annotation class net/aholbrook/kast/InternalApi : java/lang/annotation/Annotation {
+}
+
+public final class net/aholbrook/kast/MessageType : java/lang/Enum {
+	public static final field NOTIFY Lnet/aholbrook/kast/MessageType;
+	public static final field USER_DATA Lnet/aholbrook/kast/MessageType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lnet/aholbrook/kast/MessageType;
+	public static fun values ()[Lnet/aholbrook/kast/MessageType;
+}
+
+public final class net/aholbrook/kast/Notification {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/String;Ljava/lang/Object;)Lnet/aholbrook/kast/Notification;
+	public static synthetic fun copy$default (Lnet/aholbrook/kast/Notification;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)Lnet/aholbrook/kast/Notification;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId ()Ljava/lang/String;
+	public final fun getPayload ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/aholbrook/kast/NotificationDecoder : net/aholbrook/kast/PayloadDecoder {
+	public fun <init> (Lnet/aholbrook/kast/PayloadDecoder;)V
+	public synthetic fun decode ([BII)Ljava/lang/Object;
+	public fun decode ([BII)Lnet/aholbrook/kast/Notification;
+	public final fun getPayloadDecoder ()Lnet/aholbrook/kast/PayloadDecoder;
+	public fun getType ()Lnet/aholbrook/kast/MessageType;
+}
+
+public final class net/aholbrook/kast/NotificationEncoder : net/aholbrook/kast/PayloadEncoder {
+	public fun <init> (Lnet/aholbrook/kast/PayloadEncoder;)V
+	public synthetic fun encode (Ljava/lang/Object;)[B
+	public fun encode (Lnet/aholbrook/kast/Notification;)[B
+	public final fun getPayloadEncoder ()Lnet/aholbrook/kast/PayloadEncoder;
+	public fun getType ()Lnet/aholbrook/kast/MessageType;
+}
+
+public abstract interface class net/aholbrook/kast/PayloadDecoder {
+	public abstract fun decode ([BII)Ljava/lang/Object;
+	public abstract fun getType ()Lnet/aholbrook/kast/MessageType;
+}
+
+public abstract interface class net/aholbrook/kast/PayloadEncoder {
+	public abstract fun encode (Ljava/lang/Object;)[B
+	public abstract fun getType ()Lnet/aholbrook/kast/MessageType;
+}
+
+public final class net/aholbrook/kast/ProtocolKt {
+	public static final field FRAME_MAX_BYTES I
+	public static final fun decode ([BLnet/aholbrook/kast/PayloadDecoder;)Ljava/lang/Object;
+}
+
+public final class net/aholbrook/kast/Receiver {
+	public fun <init> (ILnet/aholbrook/kast/NotificationDecoder;)V
+	public final fun getDecoder ()Lnet/aholbrook/kast/NotificationDecoder;
+	public final fun getPort ()I
+	public final fun start (Lkotlinx/coroutines/CoroutineDispatcher;I)V
+	public static synthetic fun start$default (Lnet/aholbrook/kast/Receiver;Lkotlinx/coroutines/CoroutineDispatcher;IILjava/lang/Object;)V
+	public final fun stop (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun whenNotified (Ljava/lang/String;Ljava/time/Duration;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun whenNotified$default (Lnet/aholbrook/kast/Receiver;Ljava/lang/String;Ljava/time/Duration;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class net/aholbrook/kast/ReferenceStrength : java/lang/Enum {
+	public static final field STRONG Lnet/aholbrook/kast/ReferenceStrength;
+	public static final field WEAK Lnet/aholbrook/kast/ReferenceStrength;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lnet/aholbrook/kast/ReferenceStrength;
+	public static fun values ()[Lnet/aholbrook/kast/ReferenceStrength;
+}
+
+public final class net/aholbrook/kast/Sender {
+	public fun <init> ([Ljava/lang/String;ILnet/aholbrook/kast/NotificationEncoder;Ljava/time/Duration;Ljava/time/Duration;)V
+	public synthetic fun <init> ([Ljava/lang/String;ILnet/aholbrook/kast/NotificationEncoder;Ljava/time/Duration;Ljava/time/Duration;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getEncoder ()Lnet/aholbrook/kast/NotificationEncoder;
+	public final fun getHosts ()[Ljava/lang/String;
+	public final fun getPort ()I
+	public final fun getShutdownTimeout ()Ljava/time/Duration;
+	public final fun notify (Ljava/lang/String;Lnet/aholbrook/kast/Notification;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun notify (Lnet/aholbrook/kast/Notification;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun notifyAll (Lnet/aholbrook/kast/Notification;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun start ()V
+	public final fun stop ()V
+}
+
+public final class net/aholbrook/kast/StringEncoding : net/aholbrook/kast/PayloadDecoder, net/aholbrook/kast/PayloadEncoder {
+	public static final field INSTANCE Lnet/aholbrook/kast/StringEncoding;
+	public synthetic fun decode ([BII)Ljava/lang/Object;
+	public fun decode ([BII)Ljava/lang/String;
+	public synthetic fun encode (Ljava/lang/Object;)[B
+	public fun encode (Ljava/lang/String;)[B
+	public fun getType ()Lnet/aholbrook/kast/MessageType;
+}
+

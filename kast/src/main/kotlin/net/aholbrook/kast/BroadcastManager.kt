@@ -1,13 +1,13 @@
 package net.aholbrook.kast
 
-import net.aholbrook.kast.ReferenceStrength.STRONG
-import net.aholbrook.kast.ReferenceStrength.WEAK
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 import mu.KotlinLogging
+import net.aholbrook.kast.ReferenceStrength.STRONG
+import net.aholbrook.kast.ReferenceStrength.WEAK
 import java.lang.ref.WeakReference
 import java.time.Duration
 
@@ -67,6 +67,7 @@ internal class BroadcastManager<_Id, _Data> {
         }
     }
 
+    @Suppress("UnusedParameter")
     suspend fun register(
         jobId: _Id,
         timeout: Duration,

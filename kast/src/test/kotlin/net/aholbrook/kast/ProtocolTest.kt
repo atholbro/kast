@@ -1,5 +1,6 @@
 package net.aholbrook.kast
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
@@ -40,5 +41,14 @@ class ProtocolTest {
 
         n.id shouldBe decoded.id
         n.payload shouldBe decoded.payload
+    }
+
+    @Test
+    fun `decode rejects truncated frame payload`() {
+        val truncated = byteArrayOf(1, 1, 0, 12, 0, 5, 116, 101, 115, 116)
+
+        shouldThrow<IllegalArgumentException> {
+            decode(truncated, NotificationDecoder(ByteArrayEncoding))
+        }
     }
 }

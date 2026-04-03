@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber", "UnusedPrivateProperty")
+
 package net.aholbrook.kast
 
 private const val FRAME_VERSION: Byte = 1
@@ -118,6 +120,7 @@ fun <T> decode(input: ByteArray, decoder: PayloadDecoder<T>): T {
     require(version == FRAME_VERSION)
     require(type == decoder.type.ordinal.toByte())
     require(length <= PAYLOAD_MAX_BYTES)
+    require(FRAME_HEADER_BYTES + length <= input.size)
 
     val payloadOffset = FRAME_HEADER_BYTES
     return decoder.decode(input, payloadOffset, length)

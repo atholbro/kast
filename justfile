@@ -1,20 +1,12 @@
 #!/usr/bin/env just --justfile
-set dotenv-load
-set windows-shell := ["powershell", "-NoProfile", "-Command"]#["cmd", "/c"]
 
-# Build Variables
-VERSION := env_var_or_default("VERSION", "latest")
-cache_dir := justfile_directory() + '/.ci-cache'
-ci := env_var_or_default("CI", "")
+VERSION := env_var_or_default("VERSION", "")
 
 # Gradle Variables
-gradlew_local := if os_family() == "windows" {
-  '& "' + justfile_directory() + '/gradlew.bat" -p "' + justfile_directory() + '"'
-} else {
-  '"' + justfile_directory() + '/gradlew" -p "' + justfile_directory() + '"'
-}
-gradlew_ci := 'TERM=dumb GRADLE_USER_HOME="' + cache_dir + '" ' + gradlew_local + ' -q'
-gradlew := if ci == "" { gradlew_local } else { gradlew_ci }
+in_ci := env_var_or_default("GITHUB_ACTIONS", "")
+gradlew_local := justfile_directory() + '/gradlew -p ' + justfile_directory()
+gradlew_ci := 'TERM=dumb ' + gradlew_local + ' -q'
+gradlew := if in_ci == "" { gradlew_local } else { gradlew_ci }
 
 # Print a list of available recipes
 _default:
@@ -28,9 +20,13 @@ build:
 clean:
     {{gradlew}} -configuration-cache clean
 
-# Run all application targets
-run:
-    {{gradlew}} -configuration-cache run
+# Build and publish to maven central
+publish version=(VERSION):
+    VERSION="{{version}}" {{gradlew}} lintKotlin test publishAggregationToCentralPortal
+
+# Build and publish to local maven repository (~/.m2)
+publish-local version=(VERSION):
+    VERSION="{{version}}" {{gradlew}} lintKotlin test nmcpPublishAggregationToMavenLocal
 
 # Run unit tests (when clean="true" all tests will run, otherwise only outdated tests are run)
 test clean="false":
@@ -63,3 +59,9 @@ update-check:
 # Automatically updates all dependencies in the version catalog.
 update-apply:
     {{gradlew}} versionCatalogUpdate
+
+api-check:
+    {{gradlew}} apiCheck
+
+api-dump:
+    {{gradlew}} apiDump
